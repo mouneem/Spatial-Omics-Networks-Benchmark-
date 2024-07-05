@@ -140,8 +140,409 @@ def plot_network(points, edges, types = None, linewidth = 1):
         except:
             print(f"The edge: {edge} does not correspond to any points")
             print(points.iloc[point1,0], points.iloc[point1,1])
-        break
     # Remove axis and grid
     plt.axis('off')
     # Set labels and title
     plt.show()
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.spatial import Delaunay
+
+import numpy as np
+from scipy.spatial import Delaunay
+
+def delaunay_edges(points):
+    """
+    Perform Delaunay triangulation on a set of points and return the edges.
+
+    Parameters:
+    - points (DataFrame or ndarray): Input points in 2D space. If DataFrame, 
+      should have two columns representing x and y coordinates. If ndarray, 
+      should have shape (n, 2) where n is the number of points.
+
+    Returns:
+    - edges (list of tuples): List of edges (as tuples of point indices) 
+      representing the Delaunay triangulation of the input points.
+
+    """
+    # Convert DataFrame to ndarray if points is a DataFrame
+    if isinstance(points, pd.DataFrame):
+        points = points.to_numpy()
+    
+    tri = Delaunay(points)
+    
+    # Collect unique edges from the Delaunay triangulation
+    edges = {tuple(sorted([simplex[i], simplex[(i + 1) % 3]])) 
+             for simplex in tri.simplices for i in range(3)}
+    
+    return list(edges)
+
+
+
+from scipy.spatial import distance_matrix
+from scipy.sparse.csgraph import minimum_spanning_tree
+
+def mst_edges(points):
+    """
+    Compute Minimum Spanning Tree (MST) edges for a set of points.
+
+    Parameters:
+    - points (DataFrame or ndarray): Input points in 2D space. If DataFrame, 
+      should have two columns representing x and y coordinates. If ndarray, 
+      should have shape (n, 2) where n is the number of points.
+
+    Returns:
+    - mst_edges (list of tuples): List of edges (as tuples of point indices) 
+      representing the edges in the Minimum Spanning Tree of the input points.
+
+    Example:
+    >>> import pandas as pd
+    >>> points_df = pd.DataFrame([[0, 0], [1, 0], [0, 1], [1, 1]], columns=['x', 'y'])
+    >>> edges = mst_edges(points_df)
+    >>> print(edges)
+    [(0, 1), (0, 2), (1, 3)]
+    """
+    # Convert DataFrame to ndarray if points is a DataFrame
+    if isinstance(points, pd.DataFrame):
+        points = points.to_numpy()
+    
+    # Compute distance matrix
+    dist_matrix = distance_matrix(points, points)
+    
+    # Compute Minimum Spanning Tree
+    mst = minimum_spanning_tree(dist_matrix).toarray().astype(bool)
+    
+    # Extract edges from the MST
+    def extract_edges(matrix):
+        edges = []
+        num_vertices = matrix.shape[0]
+        for i in range(num_vertices):
+            for j in range(i + 1, num_vertices):
+                if matrix[i, j]:
+                    edges.append((i, j))
+        return edges
+    
+    mst_edges = extract_edges(mst)
+    
+    return mst_edges
+
+
+
+def gabriel_edges(points):
+    """
+    Calculate Gabriel edges for a set of points in 2D space.
+
+    Parameters:
+    - points (DataFrame or ndarray): Input points in 2D space. If DataFrame, 
+      should have two columns representing x and y coordinates. If ndarray, 
+      should have shape (n, 2) where n is the number of points.
+
+    Returns:
+    - edges_gabriel (list of tuples): List of edges (as tuples of point indices) 
+      representing the Gabriel graph edges of the input points.
+
+    Example:
+    >>> import pandas as pd
+    >>> points_df = pd.DataFrame([[0, 0], [1, 0], [0, 1], [1, 1]], columns=['x', 'y'])
+    >>> gabriel_edges(points_df)
+    [(0, 2), (1, 3)]
+    """
+    # Convert DataFrame to ndarray if points is a DataFrame
+    if isinstance(points, pd.DataFrame):
+        points = points.to_numpy()
+    
+    edges_gabriel = []
+    dist_matrix = distance_matrix(points, points)
+    
+    for i in range(len(points)):
+        for j in range(i + 1, len(points)):
+            d = dist_matrix[i, j] / 2
+            mid_point = (points[i] + points[j]) / 2
+            if np.all(np.linalg.norm(points - mid_point, axis=1) >= d):
+                edges_gabriel.append((i, j))
+    
+    return edges_gabriel
+
+
+def rng_edges(points):
+    """
+    Compute the edges of the Relative Neighborhood Graph (RNG) for a set of points.
+
+    Parameters:
+    - points (DataFrame or ndarray): Input points in 2D space. If DataFrame, 
+      should have two columns representing x and y coordinates. If ndarray, 
+      should have shape (n, 2) where n is the number of points.
+
+    Returns:
+    - edges_rng (list of tuples): List of edges (as tuples of point indices) 
+      representing the Relative Neighborhood Graph (RNG) of the input points.
+    """
+    if isinstance(points, pd.DataFrame):
+        points = points.to_numpy()
+
+
+    n = len(points)
+    edges_rng = []
+
+    # Compute distance matrix
+    dist_matrix = np.linalg.norm(points[:, np.newaxis] - points, axis=2)
+
+    # Compute RNG edges
+    for i in range(n):
+        for j in range(i + 1, n):
+            is_rng_edge = True
+            for k in range(n):
+                if k != i and k != j:
+                    if dist_matrix[i, k] < dist_matrix[i, j] and dist_matrix[j, k] < dist_matrix[i, j]:
+                        is_rng_edge = False
+                        break
+            if is_rng_edge:
+                edges_rng.append((i, j))
+
+    return edges_rng
+
+
+from sklearn.neighbors import kneighbors_graph
+import numpy as np
+
+def knn_edges(points, k=3):
+    """
+    Create a k-nearest neighbors graph from points and extract the edges.
+
+    Parameters:
+    - points (DataFrame or ndarray): Input points in 2D space. If DataFrame, 
+      should have two columns representing x and y coordinates. If ndarray, 
+      should have shape (n, 2) where n is the number of points.
+    - k (int, optional): Number of nearest neighbors for the k-nearest neighbors graph. Default is 3.
+
+    Returns:
+    - edges_knn (list of tuples): List of edges (as tuples of point indices) 
+      representing the edges of the k-nearest neighbors graph.
+
+    Example:
+    >>> import pandas as pd
+    >>> points_df = pd.DataFrame([[0, 0], [1, 0], [0, 1], [1, 1]], columns=['x', 'y'])
+    >>> edges = knn_edges(points_df, k=2)
+    >>> print(edges)
+    [(0, 1), (0, 2), (1, 0), (1, 3), (2, 0), (2, 3), (3, 1), (3, 2)]
+    """
+    # Convert DataFrame to ndarray if points is a DataFrame
+    if isinstance(points, pd.DataFrame):
+        points = points.to_numpy()
+    
+    # Create k-nearest neighbors graph
+    knn_graph = kneighbors_graph(points, k, mode='connectivity', include_self=False)
+    
+    # Extract edges from the graph
+    def extract_edges(adj_matrix):
+        edges = np.column_stack(adj_matrix.nonzero())
+        return [(edges[i, 0], edges[i, 1]) for i in range(edges.shape[0])]
+    
+    edges_knn = extract_edges(knn_graph)
+    
+    return edges_knn
+
+from sklearn.metrics import silhouette_score
+
+def find_optimal_k(points, max_k=10):
+    """
+    Find the optimal number of nearest neighbors (k) using silhouette score.
+
+    Parameters:
+    - points (ndarray): Input points in 2D space with shape (n, 2), where n is the number of points.
+    - max_k (int): Maximum number of nearest neighbors to consider. Default is 10.
+
+    Returns:
+    - best_k (int): Optimal number of nearest neighbors (k) based on silhouette score.
+    """
+    silhouette_scores = []
+    for k in range(2, max_k + 1):
+        knn_graph = kneighbors_graph(points, k, mode='connectivity', include_self=False)
+        adj_matrix = knn_graph.toarray()
+        # Calculate silhouette score
+        silhouette = silhouette_score(points, np.argmax(adj_matrix, axis=1))
+        silhouette_scores.append(silhouette)
+    
+    # Find the index of the maximum silhouette score
+    best_k = np.argmax(silhouette_scores) + 2  # add 2 because k starts from 2
+    
+    return best_k
+
+
+def optimal_knn_edges(points, max_k=10):
+    """
+    Create a k-nearest neighbors graph from points and extract the edges.
+
+    Parameters:
+    - points (DataFrame or ndarray): Input points in 2D space. If DataFrame, 
+      should have two columns representing x and y coordinates. If ndarray, 
+      should have shape (n, 2) where n is the number of points.
+    - max_k (int): Maximum number of nearest neighbors to consider. Default is 10.
+
+    Returns:
+    - edges_knn (list of tuples): List of edges (as tuples of point indices) 
+      representing the edges of the k-nearest neighbors graph.
+    """
+    # Convert DataFrame to ndarray if points is a DataFrame
+    if isinstance(points, pd.DataFrame):
+        points = points.to_numpy()
+    
+    # Find optimal k using silhouette score
+    best_k = find_optimal_k(points, max_k)
+    
+    # Create k-nearest neighbors graph with optimal k
+    knn_graph = kneighbors_graph(points, best_k, mode='connectivity', include_self=False)
+    
+    # Extract edges from the graph
+    def extract_edges(adj_matrix):
+        edges = np.column_stack(adj_matrix.nonzero())
+        return [(edges[i, 0], edges[i, 1]) for i in range(edges.shape[0])]
+    
+    edges_knn = extract_edges(knn_graph)
+    
+    return edges_knn
+
+
+def radius_edges(points, radius):
+    """
+    Construct edges based on a radius threshold in a radius-based graph.
+
+    Parameters:
+    - points (DataFrame or ndarray): Input points in 2D space. If DataFrame, 
+      should have two columns representing x and y coordinates. If ndarray, 
+      should have shape (n, 2) where n is the number of points.
+    - radius (float): Radius threshold for edge construction.
+
+    Returns:
+    - edges_radius (list of tuples): List of edges (as tuples of point indices) 
+      where the distance between points is less than the specified radius.
+
+    """
+    # Convert DataFrame to ndarray if points is a DataFrame
+    if isinstance(points, pd.DataFrame):
+        points = points.to_numpy()
+
+    # Calculate distance matrix
+    dist_matrix = distance_matrix(points, points)
+
+    # Extract edges where distance is less than radius
+    edges_radius = np.column_stack(np.where(dist_matrix < radius)).tolist()
+
+    # Ensure each edge is represented with sorted indices
+    edges_radius = [tuple(sorted(edge)) for edge in edges_radius if edge[0] != edge[1]]
+    
+    # Remove duplicates by converting to set and back to list
+    edges_radius = list(set(edges_radius))
+    
+    return edges_radius
+
+
+
+import numpy as np
+from sklearn.metrics.pairwise import pairwise_distances
+
+def rips_complex_edges(points, threshold):
+    """
+    Construct edges based on the Vietoris-Rips complex method with a specified threshold.
+
+    Parameters:
+    - points (DataFrame or ndarray): Input points in 2D space. If DataFrame, 
+      should have two columns representing x and y coordinates. If ndarray, 
+      should have shape (n, 2) where n is the number of points.
+    - threshold (float): Distance threshold for edge construction.
+
+    Returns:
+    - edges_rips (list of tuples): List of edges (as tuples of point indices) 
+      where the pairwise distance between points is less than the specified threshold.
+
+    """
+    # Convert DataFrame to ndarray if points is a DataFrame
+    if isinstance(points, pd.DataFrame):
+        points = points.to_numpy()
+
+    # Calculate pairwise distances
+    dist_matrix = pairwise_distances(points)
+
+    # Extract edges where distance is less than threshold
+    edges_rips = np.column_stack(np.where(dist_matrix < threshold)).tolist()
+
+    # Ensure each edge is represented with sorted indices
+    edges_rips = [tuple(sorted(edge)) for edge in edges_rips if edge[0] != edge[1]]
+    
+    # Remove duplicates by converting to set and back to list
+    edges_rips = list(set(edges_rips))
+    
+    return edges_rips
+
+
+
+def plot_facetgrid_networks(edges_df, col_wrap = 4, height=4):
+    """
+    Plot scatter plots and connecting lines for edges data using Seaborn's FacetGrid.
+
+    Parameters:
+    - edges_df (DataFrame): DataFrame containing edge data with columns 'x1', 'y1', 'x2', 'y2', and 'method'.
+
+    """
+    # Initialize FacetGrid
+    g = sns.FacetGrid(edges_df, col='method', height=height, col_wrap=col_wrap)
+
+    # Define plotting function
+    def plot_scatter_and_line(data, **kwargs):
+        ax = plt.gca()
+        for index, row in data.iterrows():
+            ax.scatter(row['x1'], row['y1'])  # Scatter plot for (x1, y1)
+            ax.scatter(row['x2'], row['y2'])  # Scatter plot for (x2, y2)
+            ax.plot([row['x1'], row['x2']], [row['y1'], row['y2']], color='gray')  # Line connecting (x1, y1) to (x2, y2)
+
+    # Apply plotting function to FacetGrid
+    g.map_dataframe(plot_scatter_and_line)
+    g.set_titles(col_template='{col_name}')
+
+    # Adjust layout and display plot
+    plt.tight_layout()
+    plt.show()
+
+
+
+import numpy as np
+from scipy.spatial import cKDTree
+
+def EpsNet_edges(points, epsilon):
+    """
+    Compute ε-Nets edges for a set of points.
+
+    Parameters:
+    - points (DataFrame or ndarray): Input points in 2D space. If DataFrame, 
+      should have two columns representing x and y coordinates. If ndarray, 
+      should have shape (n, 2) where n is the number of points.
+    - epsilon (float): Maximum distance ε defining the ε-Nets.
+
+    Returns:
+    - eps_nets (list of tuples): List of edges (as tuples of point indices) 
+      representing the ε-Nets edges.
+
+    """
+    # Convert DataFrame to ndarray if points is a DataFrame
+    if isinstance(points, pd.DataFrame):
+        points = points.to_numpy()
+    
+    # Build a KDTree for efficient nearest neighbor search
+    tree = cKDTree(points)
+    
+    eps_nets = set()
+    
+    # Iterate through each point and find its neighbors within ε distance
+    for i, point in enumerate(points):
+        # Find neighbors within ε distance
+        neighbors = tree.query_ball_point(point, epsilon)
+        
+        # Add edges between the point and its neighbors
+        for neighbor_index in neighbors:
+            if neighbor_index > i:  # Only add edges once per pair
+                eps_nets.add((i, neighbor_index))
+    
+    return list(eps_nets)
