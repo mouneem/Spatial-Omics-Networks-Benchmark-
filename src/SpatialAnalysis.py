@@ -308,6 +308,22 @@ def rng_edges(points):
 from sklearn.neighbors import kneighbors_graph
 import numpy as np
 
+
+def multi_sample_edges(points, sample_col = 'sample', coords_col = ['X','Y'], method = 'knn', param = False):
+    all_edges = []
+    last_edge = 0
+    if method == 'knn':
+        if not param:
+            param = 1
+        for sample in points[sample_col].unique():
+            points_sample = points.loc[points[sample_col]==sample,:][coords_col]
+            edges = knn_edges(points_sample, k=param)
+            edges = pd.DataFrame(edges) + last_edge
+            all_edges.append(edges)
+            last_edge = edges.max()
+        return pd.concat(all_edges)
+
+
 def knn_edges(points, k=3):
     """
     Create a k-nearest neighbors graph from points and extract the edges.
@@ -546,3 +562,38 @@ def EpsNet_edges(points, epsilon):
                 eps_nets.add((i, neighbor_index))
     
     return list(eps_nets)
+
+
+
+def euclidean_distance(p1, p2):
+    """Calculate the Euclidean distance between two points."""
+    return math.sqrt((p1[0] - p2[0])**2 + (p1[1] - p2[1])**2)
+
+def get_distances(points, edges):
+    """Calculate the distances of the edges."""
+    distances = []
+    if isinstance(edges, pd.DataFrame):
+        edges = edges.values
+    for edge in edges:
+        point1, point2 = points.iloc[edge[0],:].values, points.iloc[edge[1],:].values
+        distance = euclidean_distance(point1, point2)
+        distances.append(distance)
+    return distances
+
+
+def filter_top(integers, percentile=95):
+    """
+    Filters out the top percentage of values from a list of integers based on the given percentile.
+        - integers (list): List of integers to filter.
+        - percentile (int): The percentile cutoff to filter the top values. Default is 95.
+    """
+    # Sort the list of integers
+    sorted_integers = sorted(integers)
+    
+    # Calculate the cutoff based on the given percentile
+    cutoff = np.percentile(sorted_integers, percentile)
+    
+    # Filter the list to include only values below the calculated cutoff
+    filtered_list = [x for x in sorted_integers if x <= cutoff]
+    
+    return filtered_list
