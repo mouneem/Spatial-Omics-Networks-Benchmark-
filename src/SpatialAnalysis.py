@@ -597,3 +597,68 @@ def filter_top(integers, percentile=95):
     filtered_list = [x for x in sorted_integers if x <= cutoff]
     
     return filtered_list
+
+
+
+"""
+# Compute features
+"""
+from scipy.stats import entropy
+import itertools
+
+
+def compute_abundance(df, phenotype_col = 'celltypes'):
+    return df[phenotype_col].value_counts()
+
+def compute_proportions(df, phenotype_col = 'celltypes'):
+    return df[phenotype_col].value_counts(normalize=True)
+
+def compute_ratio(df, phenotype_col = 'celltypes'):
+    counts = df[phenotype_col].value_counts()
+    ratios = {}
+    for type1, type2 in itertools.combinations(counts.index, 2):
+        # Prevent division by zero and ensure that the ratio is defined by checking count presence
+        ratio_12 = counts.get(type1, 0) / counts.get(type2, 0.1)  # Use 0.1 to avoid division by zero
+        ratio_21 = counts.get(type2, 0) / counts.get(type1, 0.1)  # Use 0.1 to avoid division by zero
+        ratios[f"{type1}/{type2}"] = ratio_12
+        ratios[f"{type2}/{type1}"] = ratio_21
+    return ratios
+def compute_density(df, area, phenotype_col = 'celltypes'):
+    counts = df[phenotype_col].value_counts()
+    return counts / area
+
+def compute_distribution_uniformity(df, grid_size, phenotype_col = 'celltypes'):
+    # Discretize the space into a grid
+    df['grid_x'] = pd.cut(df['x'], bins=int(df['x'].max()/grid_size))
+    df['grid_y'] = pd.cut(df['y'], bins=int(df['y'].max()/grid_size))
+    grid_counts = df.groupby(['grid_x', 'grid_y', 'celltypes']).size().unstack(fill_value=0)
+    # Calculate standard deviation of counts in each grid cell
+    return grid_counts.std()
+
+def compute_spatial_entropy(df, phenotype_col = 'celltypes'):
+    counts = df[phenotype_col].value_counts()
+    probabilities = counts / counts.sum()
+    return entropy(probabilities)
+
+def compute_area_fraction(df, total_area, phenotype_col = 'celltypes'):
+    counts = df[phenotype_col].value_counts()
+    # Assuming each point represents an equal unit of area
+    return (counts * (1 / counts.sum()) * total_area)
+
+def compute_geometric_features(df, phenotype_col='celltypes', area=None, grid_size=None, total_area=None):
+        # Initialize an empty DataFrame
+    results_df = pd.DataFrame(index=[0])
+
+    # Compute each metric and store directly into DataFrame
+    results_df['Abundance'] = [compute_abundance(df, phenotype_col).to_dict()]
+    results_df['Proportions'] = [compute_proportions(df, phenotype_col).to_dict()]
+    results_df['Ratios'] = [compute_ratio(df, phenotype_col)]
+    if area:
+        results_df['Density'] = [compute_density(df, area, phenotype_col).to_dict()]
+    if grid_size:
+        results_df['Uniformity'] = [compute_distribution_uniformity(df, grid_size, phenotype_col).std().to_dict()]
+    results_df['Spatial Entropy'] = [compute_spatial_entropy(df, phenotype_col)]
+    if total_area:
+        results_df['Area Fraction'] = [compute_area_fraction(df, total_area, phenotype_col).to_dict()]
+
+    return results_df
