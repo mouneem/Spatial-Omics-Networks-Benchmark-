@@ -600,6 +600,38 @@ def filter_top(integers, percentile=95):
 
 
 
+
+def trim_edges_by_distance(points, edges, threshold):
+    """
+    Filter edges to only include those below a specified distance threshold.
+
+    Parameters:
+    - points (DataFrame or ndarray): Input points in 2D space. If DataFrame, 
+      convert to ndarray automatically.
+    - edges (list of tuples): List of edges as tuples of point indices.
+    - threshold (float): Maximum distance allowed for edges to be included.
+
+    Returns:
+    - trimmed_edges (list of tuples): List of edges that are shorter than the threshold distance.
+    """
+    if isinstance(points, pd.DataFrame):
+        points = points.to_numpy()  # Convert DataFrame to ndarray for processing
+
+    trimmed_edges = []
+    for edge in edges:
+        # Extract the points for this edge
+        point1, point2 = points[edge[0]], points[edge[1]]
+
+        # Calculate the Euclidean distance between the two points
+        distance = np.linalg.norm(point1 - point2)
+
+        # Include edge if it's below the threshold
+        if distance <= threshold:
+            trimmed_edges.append(edge)
+
+    return trimmed_edges
+
+
 """
 # Compute features
 """
@@ -662,3 +694,52 @@ def compute_geometric_features(df, phenotype_col='celltypes', area=None, grid_si
         results_df['Area Fraction'] = [compute_area_fraction(df, total_area, phenotype_col).to_dict()]
 
     return results_df
+
+# Function to draw a circle around cells of the same type with specified opacity and quantile threshold
+def draw_circle(ax, df, celltype, color, alpha, quantile_threshold):
+    cells = df[df['celltype'] == celltype]
+    x_mean, y_mean = cells['x'].mean(), cells['y'].mean()
+    distances = ((cells['x'] - x_mean)**2 + (cells['y'] - y_mean)**2).apply(lambda x: x**0.5)
+    radius = distances.quantile(quantile_threshold)
+    circle = Circle((x_mean, y_mean), radius, edgecolor='black', facecolor=color, alpha=alpha, linestyle='--')
+    ax.add_patch(circle)
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from matplotlib.patches import Circle
+
+def plot_cells_with_circles(coordinates, celltypes, quantile_threshold=0.75, alpha=0.3):
+    """
+    Plots cells with different colors and draws circles around the given quantile of cells of the same type.
+    
+    :param coordinates: DataFrame with 'x' and 'y' columns for coordinates.
+    :param celltypes: Series or list with cell type information.
+    :param quantile_threshold: Quantile threshold for the radius of the circle (default is 0.75).
+    :param alpha: Alpha value for the circle's fill color transparency (default is 0.3).
+    """
+    data = {
+        'x': coordinates['x'],
+        'y': coordinates['y'],
+        'celltype': celltypes
+    }
+    df = pd.DataFrame(data)
+
+    # Plot using Seaborn
+    plt.figure(figsize=(10, 6))
+    palette = sns.color_palette('deep', df['celltype'].nunique())
+    sns.scatterplot(data=df, x='x', y='y', hue='celltype', palette=palette, s=100, legend='full')
+
+    ax = plt.gca()
+
+    # Draw circles for each cell type
+    for celltype, color in zip(df['celltype'].unique(), palette):
+        draw_circle(ax, df, celltype, color, alpha, quantile_threshold)
+
+    plt.title('Threshold {:.0%} of Cells in circle'.format(quantile_threshold))
+    plt.xlabel('')
+    plt.ylabel('')
+    plt.legend(title='')
+    plt.axis('off')
+    plt.show()
+    return ax
