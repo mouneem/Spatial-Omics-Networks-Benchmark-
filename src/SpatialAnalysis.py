@@ -736,10 +736,66 @@ def plot_cells_with_circles(coordinates, celltypes, quantile_threshold=0.75, alp
     for celltype, color in zip(df['celltype'].unique(), palette):
         draw_circle(ax, df, celltype, color, alpha, quantile_threshold)
 
-    plt.title('Threshold {:.0%} of Cells in circle'.format(quantile_threshold))
+    plt.title('Threshold: {:.0%} of Cells'.format(quantile_threshold))
     plt.xlabel('')
     plt.ylabel('')
     plt.legend(title='')
     plt.axis('off')
     plt.show()
     return ax
+
+from scipy.spatial import ConvexHull, convex_hull_plot_2d
+
+def plot_cells_with_hulls(coordinates, celltypes, quantile_threshold=0.75, alpha=0.3, color_dict=None):
+    """
+    Plots cells with different colors and draws convex hulls around the given quantile of cells of the same type.
+    
+    :param coordinates: DataFrame with 'x' and 'y' columns for coordinates.
+    :param celltypes: Series or list with cell type information.
+    :param quantile_threshold: Quantile threshold for the number of cells included in the hull (default is 0.75).
+    :param alpha: Alpha value for the hull's fill color transparency (default is 0.3).
+    :param color_dict: Optional dictionary mapping cell types to colors.
+    """
+    data = {
+        'x': coordinates['x'],
+        'y': coordinates['y'],
+        'celltype': celltypes
+    }
+    df = pd.DataFrame(data)
+
+    # Determine the color palette
+    if color_dict:
+        palette = color_dict
+    else:
+        unique_celltypes = df['celltype'].unique()
+        colors = sns.color_palette('deep', len(unique_celltypes))
+        palette = dict(zip(unique_celltypes, colors))
+
+    # Plot using Seaborn
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(data=df, x='x', y='y', hue='celltype', palette=palette, s=100, legend='full')
+
+    ax = plt.gca()
+
+    # Draw convex hulls for each cell type
+    for celltype, color in palette.items():
+        draw_hull(ax, df, celltype, color, alpha, quantile_threshold)
+
+    plt.title('Threshold: {:.0%} of Cells '.format(quantile_threshold))
+    plt.xlabel('')
+    plt.ylabel('')
+    plt.legend(title='')
+    plt.axis('off')
+    plt.show()
+    return ax
+
+def draw_hull(ax, df, celltype, color, alpha, quantile_threshold):
+    points = df[df['celltype'] == celltype][['x', 'y']].values
+    num_points = int(len(points) * quantile_threshold)
+    
+    if num_points > 2:
+        selected_points = points[np.random.choice(points.shape[0], num_points, replace=False)]
+        hull = ConvexHull(selected_points)
+        for simplex in hull.simplices:
+            plt.plot(selected_points[simplex, 0], selected_points[simplex, 1], color=color)
+        plt.fill(selected_points[hull.vertices, 0], selected_points[hull.vertices, 1], color=color, alpha=alpha)
