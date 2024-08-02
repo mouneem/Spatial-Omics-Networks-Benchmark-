@@ -324,7 +324,7 @@ def multi_sample_edges(points, sample_col = 'sample', coords_col = ['X','Y'], me
         return pd.concat(all_edges)
 
 
-def knn_edges(points, k=3):
+def knn_edges(points, k=3, return_rank=False, return_distances=False):
     """
     Create a k-nearest neighbors graph from points and extract the edges.
 
@@ -358,6 +358,27 @@ def knn_edges(points, k=3):
         return [(edges[i, 0], edges[i, 1]) for i in range(edges.shape[0])]
     
     edges_knn = extract_edges(knn_graph)
+
+
+    if return_rank or return_distances:
+        distances = pairwise_distances(points)
+        ranks = []
+        edge_distances = []
+        for edge in edges_knn:
+            point1, point2 = edge
+            # Find the rank of point2 in the nearest neighbors of point1
+            neighbors = np.argsort(distances[point1])
+            rank = np.where(neighbors == point2)[0][0]
+            distance = distances[point1, point2]
+            ranks.append(rank)
+            edge_distances.append(distance)
+        
+        if return_rank and return_distances:
+            return edges_knn, ranks, edge_distances
+        elif return_rank:
+            return edges_knn, ranks
+        else:
+            return edges_knn, edge_distances
     
     return edges_knn
 
