@@ -1,0 +1,9 @@
+,Method,Value,model
+0,MOSNA,0.9666666666666667,doublets
+1,UTAG,1.0,doublets
+2,CellCharter,0.98,doublets
+3,BayesSpace,0.52,doublets
+4,SquidPy,0.98,doublets
+5,StLearn,0.98,doublets
+6,imcRtools,0.6550597929856296,doublets
+7,Neighborhood,1.0,doublets

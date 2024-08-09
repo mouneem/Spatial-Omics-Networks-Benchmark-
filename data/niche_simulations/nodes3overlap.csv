@@ -1,0 +1,9 @@
+,Method,Value,model
+0,MOSNA,0.9933993399339934,overlap
+1,UTAG,0.9317164419600744,overlap
+2,CellCharter,0.8070588235294117,overlap
+3,BayesSpace,0.5,overlap
+4,SquidPy,0.5,overlap
+5,StLearn,0.5,overlap
+6,imcRtools,0.8086762744249766,overlap
+7,Neighborhood,1.0,overlap

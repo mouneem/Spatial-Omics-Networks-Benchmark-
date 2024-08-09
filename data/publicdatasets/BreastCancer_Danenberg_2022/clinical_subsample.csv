@@ -1,0 +1,61 @@
+,metabric_id,ERStatus,LymphNodesOrdinal,sizeOrdinal,Grade,ERBB2_pos,yearsToStatus,DeathBreast,isValidation,PAM50,IntClust
+0,MB-3350,pos,0,20-50mm,2.0,False,18.7104722792608,0,True,Luminal B,IntClust 3
+1,MB-2931,pos,0,10-20mm,2.0,False,18.735112936345,0,True,Luminal B,IntClust 8
+2,MB-0150,pos,0,10-20mm,2.0,False,9.13347022587269,0,False,Basal,IntClust 4+
+3,MB-0089,pos,4-7,50+mm,2.0,,13.5359342915811,0,False,,
+4,MB-3167,pos,1,10-20mm,2.0,False,11.2470910335387,0,True,Luminal A,IntClust 8
+5,MB-0597,pos,2-3,10-20mm,2.0,False,9.29774127310062,0,False,Normal-like,IntClust 3
+6,MB-0439,pos,0,10-20mm,2.0,False,9.21013004791239,0,False,Luminal B,IntClust 8
+7,MB-3035,pos,0,20-50mm,2.0,False,21.4154688569473,0,True,Luminal A,IntClust 7
+8,MB-0136,pos,0,10-20mm,2.0,False,7.24435318275154,0,False,Luminal A,IntClust 3
+9,MB-0205,pos,0,20-50mm,2.0,False,11.8658453114305,0,False,Normal-like,IntClust 3
+10,MB-0644,pos,4-7,20-50mm,2.0,False,7.66324435318275,0,False,Luminal A,IntClust 4+
+11,MB-2862,pos,0,20-50mm,2.0,,16.0164271047228,0,False,,
+12,MB-0013,pos,2-3,10-20mm,2.0,,9.24845995893224,0,False,,
+13,MB-0471,pos,0,10-20mm,2.0,False,8.8268309377139,0,False,Luminal A,IntClust 1
+14,MB-3403,pos,1,10-20mm,2.0,False,11.3620807665982,0,True,Luminal A,IntClust 3
+15,MB-3781,pos,0,10-20mm,2.0,False,18.444900752909,0,True,Luminal A,IntClust 8
+16,MB-0578,pos,4-7,20-50mm,2.0,False,9.04312114989733,0,False,Normal-like,IntClust 4+
+17,MB-0610,pos,2-3,10-20mm,2.0,False,6.29979466119097,0,False,Luminal A,IntClust 4+
+18,MB-3823,pos,0,20-50mm,2.0,False,18.2751540041068,0,True,Luminal A,IntClust 3
+19,MB-0415,pos,1,10-20mm,2.0,,6.39288158795346,0,False,,
+20,MB-0657,pos,0,50+mm,2.0,False,2.49965776865161,0,False,Normal-like,IntClust 4+
+21,MB-0408,pos,7+,20-50mm,2.0,False,8.36413415468857,0,False,Luminal A,IntClust 7
+22,MB-0040,pos,0,10-20mm,2.0,,13.700205338809,0,False,,
+23,MB-0508,pos,0,10-20mm,2.0,False,9.39082819986311,0,False,Normal-like,IntClust 2
+24,MB-0366,pos,0,20-50mm,2.0,False,5.27583846680356,0,False,Luminal A,IntClust 8
+25,MB-0575,pos,4-7,50+mm,2.0,False,10.5598904859685,0,False,Luminal A,IntClust 4+
+26,MB-3747,pos,0,20-50mm,2.0,,18.8774811772758,0,False,,
+27,MB-0180,pos,0,10-20mm,2.0,False,5.11978097193703,0,False,Luminal A,IntClust 8
+28,MB-0117,pos,1,20-50mm,2.0,False,0.197125256673511,0,False,Luminal A,IntClust 1
+29,MB-2848,pos,1,10-20mm,2.0,False,18.7049965776865,0,True,Luminal A,IntClust 3
+30,MB-0362,pos,1,10-20mm,2.0,False,3.8631074606434,1,False,Luminal A,IntClust 2
+31,MB-3085,pos,0,20-50mm,2.0,False,17.3278576317591,1,True,Normal-like,IntClust 4+
+32,MB-3020,pos,0,10-20mm,2.0,,10.2067077344285,1,False,,
+33,MB-0280,pos,0,20-50mm,2.0,False,14.2012320328542,1,False,Normal-like,IntClust 7
+34,MB-2764,pos,1,10-20mm,2.0,False,22.1875427789186,1,True,Normal-like,IntClust 4+
+35,MB-0005,pos,1,10-20mm,2.0,False,13.4455852156057,1,False,Luminal B,IntClust 3
+36,MB-0914,pos,4-7,10-20mm,2.0,,16.0793976728268,1,False,,
+37,MB-0030,pos,1,20-50mm,2.0,,11.4305270362765,1,False,,
+38,MB-3370,pos,1,20-50mm,2.0,,12.7310061601643,1,False,,
+39,MB-0319,pos,7+,20-50mm,2.0,False,3.3429158110883,1,False,Luminal B,IntClust 2
+40,MB-0442,pos,1,10-20mm,2.0,False,8.49828884325804,1,False,Normal-like,IntClust 4+
+41,MB-2760,pos,2-3,10-20mm,2.0,False,9.69472963723477,1,True,Luminal B,IntClust 7
+42,MB-0235,pos,1,10-20mm,2.0,False,11.709787816564,1,False,Luminal A,IntClust 8
+43,MB-2513,neg,0,10-20mm,2.0,True,4.90349075975359,1,True,Luminal A,IntClust 5-
+44,MB-0609,pos,2-3,10-20mm,2.0,False,8.10677618069815,1,False,Luminal A,IntClust 8
+45,MB-0661,pos,0,5-10mm,2.0,False,1.64271047227926,1,False,Luminal A,IntClust 7
+46,MB-2792,pos,1,20-50mm,2.0,False,9.09787816563997,1,True,HER2,IntClust 9
+47,MB-2708,pos,0,10-20mm,2.0,False,10.943189596167,1,True,Luminal B,IntClust 7
+48,MB-2669,pos,0,20-50mm,2.0,False,6.05338809034908,1,True,Luminal A,IntClust 6
+49,MB-0288,pos,7+,20-50mm,2.0,True,5.24024640657084,1,False,Normal-like,IntClust 1
+50,MB-0444,pos,7+,20-50mm,2.0,False,4.55578370978782,1,False,Luminal B,IntClust 8
+51,MB-2640,pos,0,5-10mm,2.0,,11.3018480492813,1,False,,
+52,MB-0598,pos,7+,20-50mm,2.0,False,7.34017796030116,1,False,Luminal B,IntClust 3
+53,MB-0102,pos,7+,20-50mm,2.0,False,11.5619438740589,1,False,Luminal B,IntClust 3
+54,MB-0119,pos,1,20-50mm,2.0,False,7.87405886379192,1,False,Luminal B,IntClust 7
+55,MB-3536,pos,4-7,10-20mm,2.0,False,7.08281998631075,1,True,Normal-like,IntClust 5+
+56,MB-0523,,2-3,10-20mm,2.0,,16.6379192334018,1,False,,
+57,MB-0606,pos,0,10-20mm,2.0,False,2.25598904859685,1,False,Luminal B,IntClust 3
+58,MB-3171,pos,0,10-20mm,2.0,False,18.0424366872006,1,True,Luminal A,IntClust 7
+59,MB-2810,pos,4-7,50+mm,2.0,,8.29568788501027,1,False,,

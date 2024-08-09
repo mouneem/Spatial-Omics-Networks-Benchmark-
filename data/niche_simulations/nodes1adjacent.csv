@@ -1,0 +1,9 @@
+,Method,Value,model
+0,MOSNA,0.9615384615384616,adjacent
+1,UTAG,0.7008928571428571,adjacent
+2,CellCharter,0.7362105263157894,adjacent
+3,BayesSpace,0.652,adjacent
+4,SquidPy,0.652,adjacent
+5,StLearn,0.652,adjacent
+6,imcRtools,0.9803424818203145,adjacent
+7,Neighborhood,1.0,adjacent

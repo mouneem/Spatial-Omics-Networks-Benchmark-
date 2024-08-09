@@ -11,7 +11,15 @@ def distance(p1, p2):
     return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
 
 
+def make_adj_matrix(edges):
+    edges.columns = ['source','target']
+    Edges = pd.unique(edges[['source', 'target']].values.ravel('K'))
+    adj_matrix = pd.DataFrame(0, index=Edges, columns=Edges)
 
+    for _, row in edges.iterrows():
+        adj_matrix.at[row['source'], row['target']] = 1
+
+    return adj_matrix
 
 def select_annotation(annotation):
     total_ratio = sum(annotation.values())
